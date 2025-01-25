@@ -1,7 +1,7 @@
 {
     "question": "Kime oy verir?",
     "videoId": "rWEAbDtMEiw",
-    "hideRecommendations": true,
+    "hideRecommendations": false,
     "answers": [
         "Murat Kurum",
         "Ekrem İmamoğlu",

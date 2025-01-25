@@ -26,7 +26,7 @@ createApp({
             autoPlay: true,
             soundEnabled: true,
             isIntroPlaying: false,
-            introTimer: 60,
+            introTimer: 180,
             introInterval: null,
             showStartButton: false,
             isMuted: true,
@@ -479,7 +479,7 @@ createApp({
         },
         playIntroVideo() {
             this.isIntroPlaying = true;
-            this.introTimer = 60;
+            this.introTimer = 180;
             this.isMuted = true;
             
             if (this.player) {
