@@ -1,0 +1,57 @@
+{
+    "question": "Kime oy verir?",
+    "videoId": "rWEAbDtMEiw",
+    "hideRecommendations": true,
+    "answers": [
+        "Murat Kurum",
+        "Ekrem İmamoğlu",
+        "Kararsız"
+    ],
+    "questions": [
+        {
+            "startTime": 107,
+            "endTime": 109.5,
+            "correctAnswer": 0
+        },
+        {
+            "startTime": 122,
+            "endTime": 124,
+            "correctAnswer": 1
+        },
+        {
+            "startTime": 124,
+            "endTime": 125,
+            "correctAnswer": 1
+        },
+        {
+            "startTime": 149,
+            "endTime": 153,
+            "correctAnswer": 1
+        },
+        {
+            "startTime": 160,
+            "endTime": 162,
+            "correctAnswer": 0
+        },
+        {
+            "startTime": 174,
+            "endTime": 191,
+            "correctAnswer": 1
+        },
+        {
+            "startTime": 212,
+            "endTime": 216,
+            "correctAnswer": 1
+        },
+        {
+            "startTime": 269,
+            "endTime": 277,
+            "correctAnswer": 1
+        },
+        {
+            "startTime": 310,
+            "endTime": 317,
+            "correctAnswer": 2
+        }
+    ]
+} 

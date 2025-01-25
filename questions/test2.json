@@ -1,0 +1,248 @@
+{
+    "question": "Kime oy verir?",
+    "videoId": "upk-8hUDEDU",
+    "hideRecommendations": true,
+    "answers": [
+        "AKP",
+        "MHP",
+        "CHP",
+        "Diğer / Kararsız"
+    ],
+    "questions": [
+        {
+            "startTime": 16,
+            "endTime": 18.5,
+            "correctAnswer": 0
+        },
+        {
+            "startTime": 19,
+            "endTime": 20,
+            "correctAnswer": 0
+        },
+        {
+            "startTime": 21,
+            "endTime": 22,
+            "correctAnswer": 3
+        },
+        {
+            "startTime": 22,
+            "endTime": 24,
+            "correctAnswer": 2
+        },
+        {
+            "startTime": 70,
+            "endTime": 79,
+            "correctAnswer": 0
+        },
+        {
+            "startTime": 81,
+            "endTime": 88,
+            "correctAnswer": 3
+        },
+        {
+            "startTime": 102,
+            "endTime": 105,
+            "correctAnswer": 3
+        },
+        {
+            "startTime": 106,
+            "endTime": 119,
+            "correctAnswer": 3
+        },
+        {
+            "startTime": 137,
+            "endTime": 147,
+            "correctAnswer": 0
+        },
+        {
+            "startTime": 152,
+            "endTime": 157,
+            "correctAnswer": 3
+        },
+        {
+            "startTime": 157,
+            "endTime": 162,
+            "correctAnswer": 2
+        },
+        {
+            "startTime": 162,
+            "endTime": 195,
+            "correctAnswer": 2
+        },
+        {
+            "startTime": 198,
+            "endTime": 201,
+            "correctAnswer": 3
+        },
+        {
+            "startTime": 201,
+            "endTime": 204,
+            "correctAnswer": 1
+        },
+        {
+            "startTime": 207,
+            "endTime": 212,
+            "correctAnswer": 3
+        },
+        {
+            "startTime": 217,
+            "endTime": 219,
+            "correctAnswer": 3
+        },
+        {
+            "startTime": 219,
+            "endTime": 222,
+            "correctAnswer": 2
+        },
+        {
+            "startTime": 235,
+            "endTime": 240,
+            "correctAnswer": 2
+        },
+        {
+            "startTime": 242,
+            "endTime": 248,
+            "correctAnswer": 3
+        },
+        {
+            "startTime": 249,
+            "endTime": 252,
+            "correctAnswer": 0
+        },
+        {
+            "startTime": 253,
+            "endTime": 269,
+            "correctAnswer": 0
+        },
+        {
+            "startTime": 272,
+            "endTime": 277,
+            "correctAnswer": 3
+        },
+        {
+            "startTime": 284,
+            "endTime": 286,
+            "correctAnswer": 3
+        },
+        {
+            "startTime": 286,
+            "endTime": 288,
+            "correctAnswer": 3
+        },
+        {
+            "startTime": 288,
+            "endTime": 292,
+            "correctAnswer": 3
+        },
+        {
+            "startTime": 336,
+            "endTime": 338,
+            "correctAnswer": 2
+        },
+        {
+            "startTime": 344,
+            "endTime": 440,
+            "correctAnswer": 3
+        },
+        {
+            "startTime": 452,
+            "endTime": 454,
+            "correctAnswer": 3
+        },
+        {
+            "startTime": 458,
+            "endTime": 462,
+            "correctAnswer": 3
+        },
+        {
+            "startTime": 463,
+            "endTime": 480,
+            "correctAnswer": 2
+        },
+        {
+            "startTime": 482,
+            "endTime": 487,
+            "correctAnswer": 2
+        },
+        {
+            "startTime": 490,
+            "endTime": 493,
+            "correctAnswer": 3
+        },
+        {
+            "startTime": 495,
+            "endTime": 500,
+            "correctAnswer": 2
+        },
+        {
+            "startTime": 504,
+            "endTime": 515,
+            "correctAnswer": 0
+        },
+        {
+            "startTime": 523,
+            "endTime": 527,
+            "correctAnswer": 0
+        },
+        {
+            "startTime": 534,
+            "endTime": 539,
+            "correctAnswer": 3
+        },
+        {
+            "startTime": 542,
+            "endTime": 548,
+            "correctAnswer": 3
+        },
+        {
+            "startTime": 553,
+            "endTime": 577,
+            "correctAnswer": 3
+        },
+        {
+            "startTime": 580,
+            "endTime": 584,
+            "correctAnswer": 0
+        },
+        {
+            "startTime": 762,
+            "endTime": 772,
+            "correctAnswer": 0
+        },
+        {
+            "startTime": 772,
+            "endTime": 777,
+            "correctAnswer": 2
+        },
+        {
+            "startTime": 778,
+            "endTime": 781,
+            "correctAnswer": 3
+        },
+        {
+            "startTime": 789,
+            "endTime": 795,
+            "correctAnswer": 3
+        },
+        {
+            "startTime": 796,
+            "endTime": 816,
+            "correctAnswer": 3
+        },
+        {
+            "startTime": 813,
+            "endTime": 821,
+            "correctAnswer": 3
+        },
+        {
+            "startTime": 1079,
+            "endTime": 1080,
+            "correctAnswer": 0
+        },
+        {
+            "startTime": 1084,
+            "endTime": 1090,
+            "correctAnswer": 3
+        }
+    ]
+}

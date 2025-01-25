@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="tr" :class="{ 'dark': isDarkMode }">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seçmen Quiz</title>
+    <meta name="description" content="Seçmen Quiz, sokak röportajlarındaki seçmen tercihlerini tahmin etmeye dayalı interaktif bir video quiz uygulamasıdır.">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://hasanunal.github.io/secmen-quiz/">
+    <meta property="og:title" content="Seçmen Quiz">
+    <meta property="og:description" content="Sokak röportajlarındaki seçmen tercihlerini tahmin etmeye dayalı interaktif bir video quiz uygulaması">
+    <meta property="og:image" content="/assets/meta/og-image.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://hasanunal.github.io/secmen-quiz/">
+    <meta property="twitter:title" content="Seçmen Quiz">
+    <meta property="twitter:description" content="Sokak röportajlarındaki seçmen tercihlerini tahmin etmeye dayalı interaktif bir video quiz uygulaması">
+    <meta property="twitter:image" content="/assets/meta/og-image.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1E293B">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Seçmen Quiz">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/meta/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/meta/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/meta/favicon-16x16.png">
+    <link rel="mask-icon" href="/assets/meta/safari-pinned-tab.svg" color="#1E293B">
+    <meta name="msapplication-TileColor" content="#1E293B">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        pastel: {
+                            blue: '#93C6E7',
+                            green: '#4CAF50',
+                            red: '#E11D48',
+                            gray: '#F5F5F5',
+                            dark: '#1E293B'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .video-container {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            aspect-ratio: 16/9;
+            box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .video-container iframe {
+            width: 400%;
+            height: 100%;
+            margin-left: -150%;
+            pointer-events: none;
+        }
+        @media (min-width: 769px) {
+            .video-container iframe {
+                width: 300%;
+                margin-left: -100%;
+            }
+            .video-container.recommended-video iframe {
+                height: 130%;
+            }
+        }
+
+        /* YouTube logosunu ve diğer kontrolleri gizle */
+        .video-container iframe .ytp-chrome-top,
+        .video-container iframe .ytp-chrome-bottom,
+        .video-container iframe .ytp-watermark {
+            display: none !important;
+        }
+
+        .fade-overlay {
+            background: linear-gradient(to bottom, rgba(0,0,0,0.02), rgba(0,0,0,0.1));
+            transition: all 0.3s ease;
+        }
+
+        .fade-overlay:hover {
+            background: linear-gradient(to bottom, rgba(0,0,0,0.05), rgba(0,0,0,0.15));
+        }
+
+        .answer-button {
+            transition: all 0.2s ease;
+        }
+
+        .answer-button:md:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+
+        .next-button {
+            transition: all 0.2s ease;
+        }
+
+        .next-button:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Dark mode için özel stiller */
+        .dark .fade-overlay {
+            background: linear-gradient(to bottom, rgba(255,255,255,0.02), rgba(255,255,255,0.08));
+        }
+        
+        .dark .fade-overlay:hover {
+            background: linear-gradient(to bottom, rgba(255,255,255,0.04), rgba(255,255,255,0.12));
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        .blink-animation {
+            animation: blink 1s;
+        }
+
+        @keyframes pulse-wrong {
+            0% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(225, 29, 72, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0); }
+        }
+
+        @keyframes fade-in {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .pulse-wrong {
+            animation: pulse-wrong 0.8s ease-out;
+        }
+
+        .fade-in {
+            animation: fade-in 0.3s ease-out forwards;
+        }
+
+        /* Safari için özel renk düzeltmesi */
+        @media not all and (min-resolution:.001dpcm) { 
+            @supports (-webkit-appearance:none) {
+                .answer-button {
+                    -webkit-appearance: none;
+                    -webkit-tap-highlight-color: transparent;
+                }
+                
+                .answer-button:disabled {
+                    opacity: 1;
+                    background-color: inherit;
+                }
+            }
+        }
+    </style>
+</head>
+<body class="min-h-[100dvh] transition-colors duration-300">
+    <div id="app" class="min-h-[100dvh]">
+        <div class="min-h-[100dvh] bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+            <div class="container mx-auto min-h-[100dvh] flex flex-col justify-between md:justify-center py-4 sm:py-6 md:py-8">
+                <div class="max-w-3xl mx-auto w-full px-3 sm:px-4">
+                    <!-- Üst içerik (Quiz ve Video bölümü) -->
+                    <div>
+                        <!-- Test Seçim Ekranı -->
+                        <div v-if="!testSelected" class="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 shadow-xl text-center flex-1 flex flex-col my-0 sm:my-4">
+                            <h2 class="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 md:mb-8 text-gray-800 dark:text-white">Seçmen Quiz'e Hoş Geldin!</h2>
+                            
+                            <!-- Ayarlar -->
+                            <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6">
+                                <!-- YouTube Premium -->
+                                <button @click="togglePremium" 
+                                    class="flex items-center gap-1.5 group w-full sm:w-auto justify-center">
+                                    <div class="p-1.5 rounded-md bg-gray-50 md:hover:bg-gray-100 dark:bg-gray-800 
+                                        dark:md:hover:bg-gray-700 transition-all duration-300 w-8 h-8">
+                                        <i :class="['text-base', isPremium ? 
+                                            'fab fa-youtube text-red-500' : 
+                                            'fab fa-youtube text-gray-500 dark:text-gray-400']"></i>
+                                    </div>
+                                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400 
+                                        group-md:hover:text-gray-700 dark:group-md:hover:text-gray-300 transition-colors">
+                                        {{ isPremium ? 'Premium Aktif' : 'Premium Pasif' }}
+                                    </span>
+                                </button>
+                                <!-- Otomatik Oynatma -->
+                                <button @click="autoPlay = !autoPlay" 
+                                    class="flex items-center gap-1.5 group w-full sm:w-auto justify-center min-w-48">
+                                    <div class="p-1.5 rounded-md bg-gray-50 md:hover:bg-gray-100 dark:bg-gray-800 
+                                        dark:md:hover:bg-gray-700 transition-all duration-300 w-8 h-8 flex items-center justify-center">
+                                        <i :class="['text-base', autoPlay ? 
+                                            'fas fa-play text-gray-700 dark:text-gray-300' : 
+                                            'fas fa-pause text-gray-500 dark:text-gray-400']"></i>
+                                    </div>
+                                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400 
+                                        group-md:hover:text-gray-700 dark:group-md:hover:text-gray-300 transition-colors">
+                                        {{ autoPlay ? 'Otomatik Oynatma Aktif' : 'Otomatik Oynatma Kapalı' }}
+                                    </span>
+                                </button>
+
+                                <!-- Ses Efektleri -->
+                                <button @click="soundEnabled = !soundEnabled; setCookie('soundEnabled', soundEnabled, 30)" 
+                                    class="flex items-center gap-1.5 group w-full sm:w-auto justify-center min-w-40">
+                                    <div class="p-1.5 rounded-md bg-gray-50 md:hover:bg-gray-100 dark:bg-gray-800 
+                                        dark:md:hover:bg-gray-700 transition-all duration-300 w-8 h-8 flex items-center justify-center">
+                                        <i :class="['text-base', soundEnabled ? 
+                                            'fas fa-volume-up text-gray-700 dark:text-gray-300' : 
+                                            'fas fa-volume-mute text-gray-500 dark:text-gray-400']"></i>
+                                    </div>
+                                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400 
+                                        group-md:hover:text-gray-700 dark:group-md:hover:text-gray-300 transition-colors">
+                                        {{ soundEnabled ? 'Ses Efektleri Açık' : 'Ses Efektleri Kapalı' }}
+                                    </span>
+                                </button>
+
+                                <!-- Dark Mode -->
+                                <button @click="toggleDarkMode" 
+                                                class="flex items-center gap-1.5 group w-full sm:w-auto justify-center">
+                                                <div class="p-1.5 rounded-md bg-gray-50 md:hover:bg-gray-100 dark:bg-gray-800 
+                                                    dark:md:hover:bg-gray-700 transition-all duration-300 w-8 h-8 flex items-center justify-center">
+                                                    <i :class="['text-base', isDarkMode ? 
+                                                        'fas fa-sun text-gray-700 dark:text-gray-300' : 
+                                                        'fas fa-moon text-gray-500 dark:text-gray-400']"></i>
+                                                </div>
+                                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 
+                                                    group-md:hover:text-gray-700 dark:group-md:hover:text-gray-300 transition-colors">
+                                                    {{ isDarkMode ? 'Aydınlık Tema' : 'Karanlık Tema' }}
+                                                </span>
+                                </button>
+                            </div>
+
+                                <!-- YouTube Premium Login Button -->
+                                <div class="mb-4 flex items-center justify-center h-9">
+                                    <a href="https://www.youtube.com/account" v-if="!isPremium"
+                                    target="_blank"
+                                    class="inline-flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 md:hover:text-red-500 dark:md:hover:text-red-400 transition-colors">
+                                        <i class="fa fa-link"></i>
+                                        <span>YouTube Premium varsa <b class="font-mono">youtube.com/account</b> adresinden giriş yapın</span>
+                                    </a>
+                                </div>
+                                <p class="text-gray-600 dark:text-gray-300 font-medium mb-8">Lütfen çözmek istediğin testi seç</p>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                                <button v-for="category in categories" 
+                                    :key="category.id"
+                                    @click="selectTest(category.id)"
+                                    class="group relative rounded-xl overflow-hidden shadow-md md:hover:shadow-lg 
+                                    transition-all duration-300">
+                                    <img :src="'https://img.youtube.com/vi/' + category.thumbnail + '/maxresdefault.jpg'"
+                                        class="w-full aspect-video object-cover" 
+                                        :alt="category.title">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-transparent 
+                                        opacity-80 group-md:hover:opacity-90 transition-opacity duration-300">
+                                    </div>
+                                    <div class="absolute bottom-0 left-0 right-0 p-6 text-left">
+                                        <div class="text-lg font-medium text-white mb-2">{{ category.title }}</div>
+                                        <div class="flex items-center text-white/80 text-sm">
+                                            <i class="fas fa-play-circle mr-2"></i>
+                                            <span>{{ category.description }}</span>
+                                </div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                        <!-- Video ve Soru Bölümü -->
+                        <div v-if="testSelected && !quizCompleted" class="flex flex-col h-full">
+                            <!-- Header -->
+                            <div class="flex justify-between items-center mb-4">
+                                <h1 class="text-lg sm:text-xl font-semibold text-gray-800 dark:text-white">
+                                    Seçmen Quiz
+                                </h1>
+                                <a :href="siteUrl" 
+                                    class="text-sm sm:text-base text-gray-600 dark:text-gray-400 md:hover:text-gray-800 
+                                    dark:md:hover:text-gray-200 transition-colors duration-300">
+                                    <span>Diğer Testler</span>
+                                    <i class="fas fa-chevron-right ml-1.5 text-xs"></i>
+                                </a>
+                            </div>
+
+                            <!-- Video ve Cevaplar Container -->
+                            <div class="flex-1 flex flex-col justify-between gap-6 sm:gap-8">
+                                <!-- Video Container -->
+                                <div class="relative bg-black rounded-2xl overflow-hidden shadow-2xl">
+                                    <div :class="['video-container', currentQuestion && hideRecommendations ? 'recommended-video' : '']" @click="!answered && !isIntroPlaying && quizStarted && showWarning()">
+                                        <div id="player"></div>
+                                        
+                                        <!-- Video Loading Overlay -->
+                                        <div v-if="!isVideoReady" 
+                                            class="absolute inset-0 bg-black/90 flex items-center justify-center z-10">
+                                            <div class="text-center space-y-4">
+                                                <div class="animate-spin rounded-full h-12 w-12 border-4 border-gray-400 border-t-white mx-auto"></div>
+                                                <div class="text-white text-sm font-medium">
+                                                    <span class="inline-block">Seçmen Yükleniyor...</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Play Button -->
+                                        <button v-if="showPlayButton && !isIntroPlaying && !isVideoEnded && answered" 
+                                            @click="playVideo"
+                                            class="absolute inset-0 flex items-center justify-center bg-black/40 md:hover:bg-black/50 
+                                            transition-all duration-300 cursor-pointer">
+                                            <div class="bg-white/20 md:hover:bg-white/30 p-4 rounded-full backdrop-blur-sm
+                                                shadow-lg transform transition-all duration-300 md:hover:scale-110">
+                                                <i class="fas fa-play text-white text-2xl"></i>
+                                            </div>
+                                        </button>
+
+                                        <!-- Warning Message -->
+                                        <div v-if="showWarningMessage" 
+                                            :class="['absolute top-0 left-0 right-0 h-[20%] bg-gradient-to-b from-black/90 to-transparent backdrop-blur-sm flex items-center justify-center z-10 transition-opacity duration-300', warningFade ? 'opacity-0' : 'opacity-100']">
+                                            <div class="text-white text-base md:text-lg font-medium">
+                                                önce cevap vermelisiniz
+                                            </div>
+                                        </div>
+
+                                        <!-- Replay Button -->
+                                        <button v-if="isVideoEnded && !isIntroPlaying" 
+                                            @click="playVideo"
+                                            class="absolute bottom-4 right-4 bg-black/60 md:hover:bg-black/80 text-white p-2 rounded-full 
+                                            transition-all duration-300 shadow-lg md:hover:scale-105">
+                                            <i class="fas fa-redo text-lg"></i>
+                                        </button>
+
+                                        <!-- Intro Controls -->
+                                        <div v-if="isIntroPlaying" class="absolute top-0 right-0 p-4 flex items-center space-x-4">
+                                            <!-- Ses Kontrolü -->
+                                            <button @click="toggleMute" 
+                                                class="bg-black/60 md:hover:bg-black/80 text-white h-10 w-10 rounded-full 
+                                                transition-all duration-300 flex items-center justify-center">
+                                                <i :class="['fas', isMuted ? 'fa-volume-mute' : 'fa-volume-up']"></i>
+                                            </button>
+                                            <!-- Timer -->
+                                            <div class="bg-black/60 text-white px-4 h-10 min-w-32 rounded-full text-sm font-medium flex items-center justify-center">
+                                                {{ introTimer }} saniye
+                                            </div>
+                                        </div>
+
+                                        <!-- Start Button -->
+                                        <div v-if="showStartButton" 
+                                            class="absolute inset-0 cursor-pointer bg-black/40 md:hover:bg-black/50 
+                                            transition-all duration-300 flex items-center justify-center backdrop-blur-sm">
+                                            <button @click="startQuiz"
+                                                class="bg-white/20 md:hover:bg-white/30 text-white px-8 py-4 rounded-xl
+                                                shadow-lg transform transition-all duration-300 md:hover:scale-105 backdrop-blur-md
+                                                border border-white/10">
+                                                <span class="text-xl font-medium">Teste Başla</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Soru ve Cevaplar -->
+                                <div v-if="currentQuestion && !isIntroPlaying && quizStarted" class="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-xl">
+                                    <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gray-800 dark:text-white">{{ defaultQuestion }}</h2>
+                                    <div :class="['grid grid-cols-1 gap-3 sm:gap-4', answers.length === 4 ? 'md:grid-cols-4' : 'md:grid-cols-3']">
+                                        <button v-for="(answer, index) in answers" 
+                                            :key="index"
+                                            @click="checkAnswer(index)"
+                                            :disabled="answered"
+                                            :class="[
+                                                'answer-button p-4 rounded-lg text-left shadow-sm md:hover:shadow-md transition-all duration-300',
+                                                answered && index === currentQuestion.correctAnswer ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800' : 
+                                                answered && index === selectedAnswer ? 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800' :
+                                                'bg-gray-50 md:hover:bg-gray-100 text-gray-700 border border-gray-200 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 dark:md:hover:bg-gray-800'
+                                            ]">
+                                            {{ answer }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-if="!testSelected" class="text-center py-4 text-xs text-gray-500 dark:text-gray-400 space-y-1 flex items-center justify-between">
+                        <p>© 2025 Seçmen Quiz. <span class="font-mono">AI</span> şaheseri.</p>
+                        <p>Telif hakkı ihlali bildirimi için: <a href="https://hasanunal.org" class="underline md:hover:text-gray-700 dark:md:hover:text-gray-300">hasanunal.org</a></p>
+                    </div>
+                    <!-- Sonuç Ekranı -->
+                        <div v-if="quizCompleted" class="mt-4 sm:mt-6 md:mt-8">
+                        <!-- Paylaşım için oluşturulacak görsel -->
+                            <div id="shareImage" class="fixed -z-10 opacity-0 overflow-hidden" 
+                                style="width: 1080px; height: 1920px; top: 0; left: 0;">
+                            <!-- Story boyutlarında konteyner -->
+                            <div class="w-[1080px] h-[1920px] bg-white dark:bg-gray-800 relative p-16 flex flex-col items-center justify-center">
+                                <!-- Logo veya başlık alanı -->
+                                <div class="absolute top-16 left-0 right-0 text-center">
+                                        <h1 class="text-6xl font-bold text-gray-800 dark:text-white">Seçmen Quiz</h1>
+                                        <p class="mt-6 text-3xl font-medium text-gray-600 dark:text-gray-400">
+                                            {{ categories.find(c => c.id === currentTest)?.title }}
+                                        </p>
+                                </div>
+                                
+                                <!-- Sonuç alanı -->
+                                <div class="text-center space-y-12">
+                                    <div class="text-[150px] font-bold text-pastel-green">
+                                        {{ score }}/{{ questions.length }}
+                                    </div>
+                                    <div class="text-4xl text-gray-600 dark:text-gray-300">
+                                        Doğru Cevap
+                                    </div>
+                                    <div class="text-5xl font-medium text-gray-800 dark:text-white mt-8">
+                                        {{ getResultMessage() }}
+                                    </div>
+                                </div>
+                                
+                                <!-- Alt bilgi -->
+                                    <div class="absolute bottom-16 left-0 right-0 text-center space-y-6">
+                                        <p class="text-4xl font-medium text-gray-500 dark:text-gray-400">Seçmen Quiz</p>
+                                        <p class="text-3xl font-medium text-gray-400 dark:text-gray-500 break-all px-8">
+                                            {{ siteUrl }}/?quiz={{ currentTest }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Detaylı sonuçlar -->
+                            <div class="text-3xl font-semibold mb-6 text-gray-800 dark:text-white text-center">
+                                <span>{{ currentQuestion.question }}</span>
+                        </div>
+                            <div class="mt-4 sm:mt-6 md:mt-8 bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 shadow-xl">
+                            <!-- İstatistikler -->
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8 md:mb-12">
+                                    <div class="bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 rounded-xl text-center">
+                                        <div class="text-3xl sm:text-4xl font-bold text-pastel-green mb-2">
+                                        %{{ (score / questions.length * 100).toFixed(0) }}
+                                    </div>
+                                    <div class="text-gray-600 dark:text-gray-400 text-sm">
+                                        Başarı Oranı
+                                    </div>
+                                </div>
+                                    <div class="bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 rounded-xl text-center">
+                                        <div class="text-3xl sm:text-4xl font-bold text-pastel-blue mb-2">
+                                        {{ score }}
+                                    </div>
+                                    <div class="text-gray-600 dark:text-gray-400 text-sm">
+                                        Doğru Cevap
+                                    </div>
+                                </div>
+                                    <div class="bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 rounded-xl text-center">
+                                        <div class="text-3xl sm:text-4xl font-bold text-pastel-red mb-2">
+                                        {{ questions.length - score }}
+                                    </div>
+                                    <div class="text-gray-600 dark:text-gray-400 text-sm">
+                                        Yanlış Cevap
+                                    </div>
+                                </div>
+                            </div>
+
+                                <div class="text-lg font-medium mb-6 text-gray-800 dark:text-white text-center">
+                                    Cevap Detayları
+                            </div>
+
+                                <div class="space-y-3 sm:space-y-4">
+                                <div v-for="(question, index) in questions" :key="index"
+                                        class="p-3 sm:p-4 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-gray-900">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <div :class="[
+                                            'w-8 h-8 rounded-full flex items-center justify-center text-white',
+                                            userAnswers[index] === question.correctAnswer 
+                                                ? 'bg-pastel-green' 
+                                                : 'bg-pastel-red'
+                                        ]">
+                                            <i :class="[
+                                                'fas',
+                                                userAnswers[index] === question.correctAnswer 
+                                                    ? 'fa-check' 
+                                                    : 'fa-times'
+                                            ]"></i>
+                                        </div>
+                                            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">
+                                            {{ index + 1 }}. Soru
+                                        </h3>
+                                    </div>
+                                    <div class="ml-11">
+                                        <!-- Kaynak Video Linki -->
+                                        <div class="text-gray-500 dark:text-gray-400 text-sm mb-2">
+                                            <span>Kaynak:</span>
+                                                <a :href="'https://youtu.be/' + videoId + '?t=' + Math.floor(question.startTime)" 
+                                                   target="_blank" 
+                                                   class="md:hover:text-pastel-blue transition-colors duration-300 underline ml-1">
+                                                youtube.com/watch?v={{ videoId }}&t={{ Math.floor(question.startTime) }}
+                                            </a>
+                                        </div>
+                                        <div class="text-gray-600 dark:text-gray-300">
+                                            Doğru Cevap: 
+                                            <span class="font-medium text-pastel-green">
+                                                {{ answers[question.correctAnswer] }}
+                                            </span>
+                                        </div>
+                                        <div v-if="userAnswers[index] !== question.correctAnswer" 
+                                            class="text-gray-600 dark:text-gray-300">
+                                            Senin Cevabın: 
+                                            <span class="font-medium text-pastel-red">
+                                                {{ answers[userAnswers[index]] }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                                <div class="mt-6 sm:mt-8 text-center space-y-4">
+                                <button @click="shareResults" 
+                                        class="bg-gradient-to-r from-purple-500 to-pink-500 md:hover:from-purple-600 
+                                        md:hover:to-pink-600 text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg sm:rounded-xl 
+                                        shadow-md md:hover:shadow-lg font-medium transition-all duration-300 md:hover:scale-105 
+                                        text-sm sm:text-base">
+                                    <i class="fab fa-instagram mr-2"></i>
+                                        Instagram Story Paylaş
+                                </button>
+                                    
+                                    <div>
+                                        <a :href="siteUrl" 
+                                            class="inline-block text-gray-600 dark:text-gray-400 md:hover:text-gray-800 
+                                            dark:md:hover:text-gray-200 transition-colors duration-300 text-sm sm:text-base">
+                                            <i class="fas fa-arrow-left mr-2"></i>
+                                            Yeni Quiz Çöz
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Alt içerik (İlerleme ve Sonraki Soru butonu) -->
+                    <div v-if="!quizCompleted && testSelected && !isIntroPlaying && quizStarted" class="max-w-3xl mx-auto w-full px-3 sm:px-4 pb-4 sm:pb-6 md:pb-8 mt-4 sm:mt-8">
+                        <div class="flex flex-col-reverse sm:flex-row justify-between items-center gap-4 sm:gap-0">
+                            <div class="text-gray-600 dark:text-gray-300 font-medium text-sm sm:text-base w-full sm:w-auto text-center sm:text-left">
+                                Soru {{ currentQuestionIndex + 1 }}/{{ questions.length }}
+                            </div>
+                            <button @click="nextQuestion" 
+                                :disabled="!answered"
+                                class="next-button bg-gray-800 md:hover:bg-gray-700 dark:bg-gray-700 dark:md:hover:bg-gray-600 
+                                text-white px-4 sm:px-6 py-2 rounded-lg text-sm sm:text-base shadow-sm md:hover:shadow-md font-medium 
+                                transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed w-full sm:w-auto
+                                disabled:md:hover:bg-gray-800 dark:disabled:md:hover:bg-gray-700">
+                                {{ currentQuestionIndex === questions.length - 1 ? 'Sonuçlar' : 'Sonraki Seçmen' }}
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Ses Efektleri -->
+    <audio id="correctSound" preload="auto" playsinline>
+        <source src="/assets/sounds/correct.mp3" type="audio/mpeg">
+        <source src="/assets/sounds/correct.ogg" type="audio/ogg">
+    </audio>
+    <audio id="wrongSound" preload="auto" playsinline>
+        <source src="/assets/sounds/wrong.mp3" type="audio/mpeg">
+        <source src="/assets/sounds/wrong.ogg" type="audio/ogg">
+    </audio>
+
+    <script src="app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/secmen-quiz/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker başarıyla kaydedildi:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('ServiceWorker kaydı başarısız:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html> 

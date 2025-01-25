@@ -1,0 +1,22 @@
+{
+    "name": "Seçmen Quiz",
+    "short_name": "Seçmen Quiz",
+    "description": "Sokak röportajlarındaki seçmen tercihlerini tahmin etmeye dayalı interaktif video quiz uygulaması",
+    "start_url": "/secmen-quiz/?source=pwa",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#1E293B",
+    "icons": [
+        {
+            "src": "/secmen-quiz/assets/meta/192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/secmen-quiz/assets/meta/512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+} 
